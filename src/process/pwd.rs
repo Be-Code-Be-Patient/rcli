@@ -1,4 +1,5 @@
 use rand::seq::{IndexedRandom, SliceRandom};
+use zxcvbn::zxcvbn;
 
 use crate::PwdOpts;
 
@@ -57,7 +58,11 @@ pub fn process_pwd(opts: PwdOpts) -> anyhow::Result<()> {
 
     password.shuffle(&mut rng);
 
-    println!("{}", String::from_utf8(password)?);
+    let password = String::from_utf8(password)?;
+
+    println!("{}", password);
+    let result = zxcvbn(&password, &[]);
+    eprintln!("Password strength: {}", result.score());
 
     Ok(())
 }
