@@ -3,25 +3,10 @@ use std::fs;
 use chrono::Utc;
 use chrono_tz::Asia;
 use csv::Reader;
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use toml::map::Map;
 
 use crate::{CsvOpts, OutputFormat};
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Player {
-    #[serde(rename = "Name")]
-    pub name: String,
-    #[serde(rename = "Position")]
-    pub position: String,
-    #[serde(rename = "DOB")]
-    pub dob: String,
-    #[serde(rename = "Nationality")]
-    pub nationality: String,
-    #[serde(rename = "Kit Number")]
-    pub kit: u8,
-}
 
 pub fn process_csv(opts: CsvOpts) -> anyhow::Result<()> {
     let output = if let Some(output) = opts.output {

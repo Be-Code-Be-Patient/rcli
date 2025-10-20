@@ -34,6 +34,24 @@ pub struct CsvOpts {
     pub header: bool,
 }
 
+#[derive(Debug, Parser)]
+pub struct PwdOpts {
+    #[arg(short, long, default_value = "16")]
+    pub length: u8,
+
+    #[arg(long, default_value = "true")]
+    pub uppercase: bool,
+
+    #[arg(long, default_value = "true")]
+    pub lowercase: bool,
+
+    #[arg(long, default_value = "true")]
+    pub numbers: bool,
+
+    #[arg(long, default_value = "true")]
+    pub symbols: bool,
+}
+
 fn verify_input_file(file_name: &str) -> Result<String, String> {
     if Path::new(file_name).exists() {
         Ok(file_name.into())
@@ -82,4 +100,7 @@ pub enum Subcommand {
         about = "Show CSV, or convert a CSV file to other formats"
     )]
     Csv(CsvOpts),
+
+    #[command(name = "pwd", about = "Generate a random password")]
+    Pwd(PwdOpts),
 }
