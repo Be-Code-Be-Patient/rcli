@@ -8,9 +8,10 @@ fn main() -> anyhow::Result<()> {
     match opts.cmd {
         Subcommand::Csv(opts) => {
             println!("Input: {}", opts.input);
-            println!("Output: {}", opts.output);
+            println!("Output: {:?}", opts.output); // Changed from {} to {:?}
             println!("Delimiter: {}", opts.delimiter);
             println!("Header: {}", opts.header);
+            println!("format: {}", opts.format);
 
             process_csv(opts)?;
         }
