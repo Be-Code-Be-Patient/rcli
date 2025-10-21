@@ -1,7 +1,7 @@
 use rand::seq::{IndexedRandom, SliceRandom};
 use zxcvbn::zxcvbn;
 
-use crate::PwdOpts;
+use crate::opt::PwdOpts;
 
 const UPPERCASE_CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const LOWERCASE_CHARS: &[u8] = b"abcdefghijklmnopqrstuvwxyz";

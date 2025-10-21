@@ -6,7 +6,7 @@ use csv::Reader;
 use serde_json::Value;
 use toml::map::Map;
 
-use crate::{CsvOpts, OutputFormat};
+use crate::opt::{CsvOpts, OutputFormat};
 
 pub fn process_csv(opts: CsvOpts) -> anyhow::Result<()> {
     let output = if let Some(output) = opts.output {

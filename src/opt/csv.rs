@@ -1,13 +1,8 @@
-use std::{fmt::Display, path::Path, str::FromStr};
+use std::{fmt::Display, str::FromStr};
 
 use clap::Parser;
 
-#[derive(Debug, Parser)]
-#[command(name = "rcli", version, author, about, long_about = None)]
-pub struct Opts {
-    #[command(subcommand)]
-    pub cmd: Subcommand,
-}
+use crate::verify_input_file;
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -32,32 +27,6 @@ pub struct CsvOpts {
 
     #[arg(long, default_value = "true")]
     pub header: bool,
-}
-
-#[derive(Debug, Parser)]
-pub struct PwdOpts {
-    #[arg(short, long, default_value = "16")]
-    pub length: u8,
-
-    #[arg(long, default_value = "true")]
-    pub uppercase: bool,
-
-    #[arg(long, default_value = "true")]
-    pub lowercase: bool,
-
-    #[arg(long, default_value = "true")]
-    pub numbers: bool,
-
-    #[arg(long, default_value = "true")]
-    pub symbols: bool,
-}
-
-fn verify_input_file(file_name: &str) -> Result<String, String> {
-    if Path::new(file_name).exists() {
-        Ok(file_name.into())
-    } else {
-        Err("Input file does not exist.".into())
-    }
 }
 
 fn parse_format(format: &str) -> Result<OutputFormat, anyhow::Error> {
@@ -91,16 +60,4 @@ impl Display for OutputFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", Into::<&str>::into(*self))
     }
-}
-
-#[derive(Debug, Parser)]
-pub enum Subcommand {
-    #[command(
-        name = "csv",
-        about = "Show CSV, or convert a CSV file to other formats"
-    )]
-    Csv(CsvOpts),
-
-    #[command(name = "pwd", about = "Generate a random password")]
-    Pwd(PwdOpts),
 }
