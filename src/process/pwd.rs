@@ -1,15 +1,13 @@
-use rand::seq::{IndexedRandom, SliceRandom};
-use zxcvbn::zxcvbn;
-
 use crate::opt::PwdOpts;
+use rand::seq::SliceRandom;
 
 const UPPERCASE_CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const LOWERCASE_CHARS: &[u8] = b"abcdefghijklmnopqrstuvwxyz";
 const NUMBER_CHARS: &[u8] = b"0123456789";
 const SYMBOL_CHARS: &[u8] = b"!@#$%^&*()-_=+[]{}|;:,.<>?";
 
-pub fn process_pwd(opts: PwdOpts) -> anyhow::Result<()> {
-    let mut rng = rand::rng();
+pub fn process_pwd(opts: PwdOpts) -> anyhow::Result<String> {
+    let mut rng = rand::thread_rng();
     let mut password = Vec::new();
     let mut chars = Vec::new();
 
@@ -60,9 +58,5 @@ pub fn process_pwd(opts: PwdOpts) -> anyhow::Result<()> {
 
     let password = String::from_utf8(password)?;
 
-    println!("{}", password);
-    let result = zxcvbn(&password, &[]);
-    eprintln!("Password strength: {}", result.score());
-
-    Ok(())
+    Ok(password)
 }

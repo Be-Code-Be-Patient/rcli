@@ -1,12 +1,14 @@
 mod base64;
 mod csv;
 mod pwd;
+mod text;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub use base64::*;
 pub use csv::*;
 pub use pwd::*;
+pub use text::*;
 
 use clap::{Parser, command};
 
@@ -30,13 +32,25 @@ pub enum Subcommand {
 
     #[command(subcommand)]
     Base64(Base64SubCommand),
+
+    #[command(subcommand)]
+    Text(TextSubCommand),
 }
 
-pub fn verify_input_file(file_name: &str) -> Result<String, String> {
+pub fn verify_file(file_name: &str) -> Result<String, &'static str> {
     if file_name == "-" || Path::new(file_name).exists() {
         Ok(file_name.into())
     } else {
-        Err("Input file does not exist.".into())
+        Err("Input file does not exist.")
+    }
+}
+
+pub fn verify_path(path: &str) -> Result<PathBuf, &'static str> {
+    let p = Path::new(path);
+    if p.exists() && p.is_dir() {
+        Ok(path.into())
+    } else {
+        Err("Path does not exist or is not a directory.")
     }
 }
 
@@ -46,11 +60,11 @@ mod tests {
 
     #[test]
     fn test_verify_input_file() {
-        assert_eq!(verify_input_file("-"), Ok("-".into()));
+        assert_eq!(verify_file("-"), Ok("-".into()));
         assert_eq!(
-            verify_input_file("nonexistent"),
-            Err("Input file does not exist.".into())
+            verify_file("nonexistent"),
+            Err("Input file does not exist.")
         );
-        assert_eq!(verify_input_file("Cargo.toml"), Ok("Cargo.toml".into()));
+        assert_eq!(verify_file("Cargo.toml"), Ok("Cargo.toml".into()));
     }
 }
