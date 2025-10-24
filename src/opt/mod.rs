@@ -1,5 +1,6 @@
 mod base64;
 mod csv;
+mod http;
 mod pwd;
 mod text;
 
@@ -7,6 +8,7 @@ use std::path::{Path, PathBuf};
 
 pub use base64::*;
 pub use csv::*;
+pub use http::*;
 pub use pwd::*;
 pub use text::*;
 
@@ -35,6 +37,9 @@ pub enum Subcommand {
 
     #[command(subcommand)]
     Text(TextSubCommand),
+
+    #[command(subcommand)]
+    Http(HttpSubCommand),
 }
 
 pub fn verify_file(file_name: &str) -> Result<String, &'static str> {
