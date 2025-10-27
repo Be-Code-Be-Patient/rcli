@@ -7,6 +7,7 @@ use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::fs::read_to_string;
+use tower_http::services::ServeDir;
 use tracing::{info, warn};
 
 #[derive(Debug)]
@@ -16,9 +17,20 @@ struct HttpServeState {
 
 pub async fn process_http_serve(opts: HttpServeOpts) -> anyhow::Result<()> {
     info!("Serve: {:?}", opts);
-    let state = HttpServeState { path: opts.dir };
+    let state = HttpServeState {
+        path: opts.dir.clone(),
+    };
     let router = Router::new()
         .route("/{*path}", get(file_handler))
+        .nest_service(
+            "/tower",
+            ServeDir::new(opts.dir)
+                .append_index_html_on_directories(true)
+                .precompressed_gzip()
+                .precompressed_br()
+                .precompressed_deflate()
+                .precompressed_zstd(),
+        )
         .with_state(Arc::new(state));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], opts.port));
