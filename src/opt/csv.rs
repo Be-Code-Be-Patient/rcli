@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use clap::Parser;
 
-use crate::verify_file;
+use crate::{CmdExecutor, process_csv, verify_file};
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
@@ -27,6 +27,14 @@ pub struct CsvOpts {
 
     #[arg(long, default_value = "true")]
     pub header: bool,
+}
+
+impl CmdExecutor for CsvOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+        println!("Convert csv: {:?}", self);
+        process_csv(self)?;
+        Ok(())
+    }
 }
 
 fn parse_format(format: &str) -> Result<OutputFormat, anyhow::Error> {

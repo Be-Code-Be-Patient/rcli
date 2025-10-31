@@ -12,6 +12,7 @@ pub use http::*;
 pub use pwd::*;
 pub use text::*;
 
+use crate::CmdExecutor;
 use clap::{Parser, command};
 
 #[derive(Debug, Parser)]
@@ -32,14 +33,26 @@ pub enum Subcommand {
     #[command(name = "pwd", about = "Generate a random password")]
     Pwd(PwdOpts),
 
-    #[command(subcommand)]
+    #[command(subcommand, about = "Base64 encoding and decoding")]
     Base64(Base64SubCommand),
 
-    #[command(subcommand)]
+    #[command(subcommand, about = "Text sign/verify")]
     Text(TextSubCommand),
 
-    #[command(subcommand)]
+    #[command(subcommand, about = "HTTP server")]
     Http(HttpSubCommand),
+}
+
+impl CmdExecutor for Subcommand {
+    async fn execute(self) -> anyhow::Result<()> {
+        match self {
+            Subcommand::Csv(opts) => opts.execute().await,
+            Subcommand::Pwd(opts) => opts.execute().await,
+            Subcommand::Base64(cmd) => cmd.execute().await,
+            Subcommand::Text(cmd) => cmd.execute().await,
+            Subcommand::Http(cmd) => cmd.execute().await,
+        }
+    }
 }
 
 pub fn verify_file(file_name: &str) -> Result<String, &'static str> {

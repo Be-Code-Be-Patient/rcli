@@ -1,4 +1,6 @@
+use crate::{CmdExecutor, process_pwd};
 use clap::Parser;
+use zxcvbn::zxcvbn;
 
 #[derive(Debug, Parser)]
 pub struct PwdOpts {
@@ -16,4 +18,15 @@ pub struct PwdOpts {
 
     #[arg(long, default_value = "true")]
     pub symbols: bool,
+}
+
+impl CmdExecutor for PwdOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+        // println!("Generate password: {:?}", pwd_opts);
+        let password = process_pwd(self)?;
+        println!("{}", password);
+        let result = zxcvbn(&password, &[]);
+        eprintln!("Password strength: {}", result.score());
+        Ok(())
+    }
 }

@@ -1,8 +1,11 @@
-use crate::verify_file;
 use crate::verify_path;
+use crate::{
+    CmdExecutor, process_text_generate, process_text_sign, process_text_verify, verify_file,
+};
 use anyhow::anyhow;
 use clap::Parser;
 use std::fmt::Display;
+use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -14,6 +17,16 @@ pub enum TextSubCommand {
     Verify(TextVerifyOpts),
     #[command(name = "generate", about = "Generate a new key")]
     Generate(TextKeyGenerateOpts),
+}
+
+impl CmdExecutor for TextSubCommand {
+    async fn execute(self) -> anyhow::Result<()> {
+        match self {
+            TextSubCommand::Sign(opts) => opts.execute().await,
+            TextSubCommand::Verify(opts) => opts.execute().await,
+            TextSubCommand::Generate(opts) => opts.execute().await,
+        }
+    }
 }
 
 #[derive(Debug, Parser)]
@@ -28,6 +41,15 @@ pub struct TextSignOpts {
     pub format: TextSignFormat,
 }
 
+impl CmdExecutor for TextSignOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+        //println!("Text Sign: {:?}", opts);
+        let signed = process_text_sign(self)?;
+        println!("{}", signed);
+        Ok(())
+    }
+}
+
 #[derive(Debug, Parser)]
 pub struct TextVerifyOpts {
     #[arg(short, long, value_parser = verify_file, default_value = "-")]
@@ -40,12 +62,42 @@ pub struct TextVerifyOpts {
     pub format: TextSignFormat,
 }
 
+impl CmdExecutor for TextVerifyOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+        //println!("Text Verify: {:?}", opts);
+        let verified = process_text_verify(self)?;
+        print!("{}", verified);
+        Ok(())
+    }
+}
+
 #[derive(Debug, Parser)]
 pub struct TextKeyGenerateOpts {
     #[arg(short, long, default_value = "blake3", value_parser = parse_text_format)]
     pub format: TextSignFormat,
     #[arg(short, long, value_parser = verify_path)]
     pub output: PathBuf,
+}
+
+impl CmdExecutor for TextKeyGenerateOpts {
+    async fn execute(self) -> anyhow::Result<()> {
+        println!("Text key Generate: {:?}", self);
+        let format = self.format;
+        let output = self.output.clone();
+        let keys = process_text_generate(self)?;
+        println!("Keys: {:?}", keys);
+        match format {
+            TextSignFormat::Blake3 => {
+                let name = output.join("blake3.txt");
+                fs::write(name, &keys[0])?;
+            }
+            TextSignFormat::Ed25519 => {
+                fs::write(output.join("ed25519.sk"), &keys[0])?;
+                fs::write(output.join("ed25519.pk"), &keys[1])?;
+            }
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
