@@ -4,12 +4,14 @@ use crate::{
 };
 use anyhow::anyhow;
 use clap::Parser;
+use enum_dispatch::enum_dispatch;
 use std::fmt::Display;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 
 #[derive(Debug, Parser)]
+#[enum_dispatch(CmdExecutor)]
 pub enum TextSubCommand {
     #[command(name = "sign", about = "Sign text with private/shared key")]
     Sign(TextSignOpts),
@@ -17,16 +19,6 @@ pub enum TextSubCommand {
     Verify(TextVerifyOpts),
     #[command(name = "generate", about = "Generate a new key")]
     Generate(TextKeyGenerateOpts),
-}
-
-impl CmdExecutor for TextSubCommand {
-    async fn execute(self) -> anyhow::Result<()> {
-        match self {
-            TextSubCommand::Sign(opts) => opts.execute().await,
-            TextSubCommand::Verify(opts) => opts.execute().await,
-            TextSubCommand::Generate(opts) => opts.execute().await,
-        }
-    }
 }
 
 #[derive(Debug, Parser)]

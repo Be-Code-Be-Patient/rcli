@@ -12,8 +12,8 @@ pub use http::*;
 pub use pwd::*;
 pub use text::*;
 
-use crate::CmdExecutor;
 use clap::{Parser, command};
+use enum_dispatch::enum_dispatch;
 
 #[derive(Debug, Parser)]
 #[command(name = "rcli", version, author, about, long_about = None)]
@@ -23,6 +23,7 @@ pub struct Opts {
 }
 
 #[derive(Debug, Parser)]
+#[enum_dispatch(CmdExecutor)]
 pub enum Subcommand {
     #[command(
         name = "csv",
@@ -41,18 +42,6 @@ pub enum Subcommand {
 
     #[command(subcommand, about = "HTTP server")]
     Http(HttpSubCommand),
-}
-
-impl CmdExecutor for Subcommand {
-    async fn execute(self) -> anyhow::Result<()> {
-        match self {
-            Subcommand::Csv(opts) => opts.execute().await,
-            Subcommand::Pwd(opts) => opts.execute().await,
-            Subcommand::Base64(cmd) => cmd.execute().await,
-            Subcommand::Text(cmd) => cmd.execute().await,
-            Subcommand::Http(cmd) => cmd.execute().await,
-        }
-    }
 }
 
 pub fn verify_file(file_name: &str) -> Result<String, &'static str> {

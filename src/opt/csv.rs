@@ -1,8 +1,7 @@
 use std::{fmt::Display, str::FromStr};
 
-use clap::Parser;
-
 use crate::{CmdExecutor, process_csv, verify_file};
+use clap::Parser;
 
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
